@@ -1,4 +1,4 @@
-## PostHog Variance Plugin
+## posthog-variance-plugin
 
 The Variance Customer Growth Platform hooks into your customer data and makes it
 easy for anyone to create, access, and manage intent-based signals across all

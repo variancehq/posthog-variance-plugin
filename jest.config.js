@@ -3,7 +3,7 @@ const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   globals: {
-    NAME: '@variance/posthog-plugin',
+    NAME: 'posthog-variance-plugin',
     VERSION: '0.0.0',
   },
 }

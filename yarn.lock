@@ -1198,38 +1198,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@variance/posthog-plugin@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@variance/posthog-plugin@workspace:."
-  dependencies:
-    "@posthog/plugin-scaffold": ^1.0.0
-    "@rollup/plugin-commonjs": ^22.0.0
-    "@rollup/plugin-node-resolve": ^13.3.0
-    "@rollup/plugin-replace": ^4.0.0
-    "@rollup/plugin-typescript": ^8.3.2
-    "@types/jest": ^27.5.1
-    "@types/lodash.get": ^4.4.7
-    "@types/lodash.set": ^4.3.7
-    "@typescript-eslint/eslint-plugin": ^5.25.0
-    "@typescript-eslint/parser": ^5.25.0
-    eslint: ^8.15.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-simple-import-sort: ^7.0.0
-    eslint-plugin-sort-keys-fix: ^1.1.2
-    eslint-plugin-typescript-sort-keys: ^2.1.0
-    eslint-plugin-unused-imports: ^2.0.0
-    jest: ^28.1.0
-    jest-fetch-mock: ^3.0.3
-    lodash.get: ^4.4.2
-    lodash.set: ^4.3.2
-    prettier: ^2.6.2
-    rollup: ^2.73.0
-    ts-jest: ^28.0.2
-    tslib: ^2.4.0
-    typescript: ^4.6.4
-  languageName: unknown
-  linkType: soft
-
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -3921,6 +3889,38 @@ __metadata:
   checksum: 9863e3f35132bf99ae1636d31ff1e1e3501251d480336edb1c211133c8d58906bed80f154a1d723652df1fda91e01c7442c2eeaf9dc83157c7ae89087e43c8d6
   languageName: node
   linkType: hard
+
+"posthog-variance-plugin@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "posthog-variance-plugin@workspace:."
+  dependencies:
+    "@posthog/plugin-scaffold": ^1.0.0
+    "@rollup/plugin-commonjs": ^22.0.0
+    "@rollup/plugin-node-resolve": ^13.3.0
+    "@rollup/plugin-replace": ^4.0.0
+    "@rollup/plugin-typescript": ^8.3.2
+    "@types/jest": ^27.5.1
+    "@types/lodash.get": ^4.4.7
+    "@types/lodash.set": ^4.3.7
+    "@typescript-eslint/eslint-plugin": ^5.25.0
+    "@typescript-eslint/parser": ^5.25.0
+    eslint: ^8.15.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-simple-import-sort: ^7.0.0
+    eslint-plugin-sort-keys-fix: ^1.1.2
+    eslint-plugin-typescript-sort-keys: ^2.1.0
+    eslint-plugin-unused-imports: ^2.0.0
+    jest: ^28.1.0
+    jest-fetch-mock: ^3.0.3
+    lodash.get: ^4.4.2
+    lodash.set: ^4.3.2
+    prettier: ^2.6.2
+    rollup: ^2.73.0
+    ts-jest: ^28.0.2
+    tslib: ^2.4.0
+    typescript: ^4.6.4
+  languageName: unknown
+  linkType: soft
 
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1

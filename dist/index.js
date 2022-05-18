@@ -1995,7 +1995,7 @@ const eventToMapping = {
 async function onEvent(event, { config }) {
     const variancePayload = {
         libary: {
-            name: "@variance/posthog-plugin",
+            name: "posthog-variance-plugin",
             version: undefined,
         },
     };
