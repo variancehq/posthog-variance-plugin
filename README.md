@@ -1,28 +1,25 @@
-# PostHog Plugin Starter Kit
+## PostHog Variance Plugin
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+The Variance Customer Growth Platform hooks into your customer data and makes it
+easy for anyone to create, access, and manage intent-based signals across all
+stages of a customer’s journey.
 
-This is a PostHog plugin template.
+### Get More Out of Variance With PostHog
 
-The existing sample code adds property `"greeting"` to every event with a configurable value (default: `"Hello world!"`).  
-But that is just to help you get started! To make it your own:
-- [ ] Add your code to `index.js`.
-- [ ] Add your metadata and configuration schema to `plugin.json`.
-- [ ] Search for `<TODO:`, make sure none are left!
-- [ ] Optional: Add a `logo.png` file to give this plugin its own logo.
-- [ ] Create a README.MD for your plugin which follows [our documentation guidelines](https://posthog.com/docs/plugins/build). 
+In just three minutes you can have your PostHog prospect and customer data
+flowing into Variance and start arming your whole organization with the signals
+they need to drive growth. Variance works with all your PostHog data,
+automatically extracting contact, account, and event information to create a
+360-degree view of your customer with no SQL or code required. If you have any
+questions at all, please reach out and we're happy to hop on a video call and
+help you get set up.
 
-If you're looking for inspiration, here are a few exemplary plugins:
+### Useful Links
 
-1. [Hello World](https://github.com/PostHog/helloworldplugin) – basic event processing, with tests
-1. [S3 Export](https://github.com/PostHog/s3-export-plugin) – event export using the AWS SDK, with TypeScript
-1. [GeoIP](https://github.com/PostHog/posthog-plugin-geoip) – advanced event processing using the GeoIP feature, with tests, formatting, linting, TypeScript, and GitHub Actions CI
-1. [PagerDuty](https://github.com/PostHog/posthog-pagerduty-plugin) – periodic job using external HTTP API access
+[Variance + PostHog](https://www.variance.com/integrations/posthog)  
+[Docs @ Variance: PostHog](https://www.variance.com/docs/posthog)
 
-To get up to speed with the environment of plugins, check out [our Plugins overview in PostHog Docs](https://posthog.com/docs/plugins/build/overview).  
-For a crash course, read [the Plugins tutorial in PostHog Docs](https://posthog.com/docs/plugins/build/tutorial).
-
-## Installation
+<!-- ## Installation
 
 1. Open PostHog.
 1. Go to the Plugins page from the sidebar.
@@ -31,14 +28,18 @@ For a crash course, read [the Plugins tutorial in PostHog Docs](https://posthog.
 
 ## Submitting your plugin to PostHog
 
-When you're done, you can submit your plugin to our integration library so that it can be used by other users, including those on PostHog Cloud. 
+When you're done, you can submit your plugin to our integration library so that
+it can be used by other users, including those on PostHog Cloud.
 
-To submit your plugin, [email your plugin GitHub URL to hey@posthog.com](mailto:hey@posthog.com?subject=Submit%20Plugin%20to%20Repository&body=Plugin%20GitHub%20link%3A)
+To submit your plugin,
+[email your plugin GitHub URL to hey@posthog.com](mailto:hey@posthog.com?subject=Submit%20Plugin%20to%20Repository&body=Plugin%20GitHub%20link%3A)
 
-Once we get your email, we'll review the plugin to ensure it's secure, performant, and adheres to best practices. Then, we add it to our official repository and make it available for everyone to use!
+Once we get your email, we'll review the plugin to ensure it's secure,
+performant, and adheres to best practices. Then, we add it to our official
+repository and make it available for everyone to use!
 
 ## Questions?
 
 ### [Join our Slack community.](https://join.slack.com/t/posthogusers/shared_invite/enQtOTY0MzU5NjAwMDY3LTc2MWQ0OTZlNjhkODk3ZDI3NDVjMDE1YjgxY2I4ZjI4MzJhZmVmNjJkN2NmMGJmMzc2N2U3Yjc3ZjI5NGFlZDQ)
 
-We're here to help you with anything PostHog!
+We're here to help you with anything PostHog! -->
