@@ -6,7 +6,7 @@
   "posthogVersion": ">= 1.25.0",
   "config": [
     {
-      "markdown": "Visit [app.variance.com](https://app.variance.com/integrations) to add your PostHog integration then enter the values below.\n\nFor more information, visit our [Docs](https://www.variance.com/docs/posthog)."
+      "markdown": "Visit [app.variance.com](https://app.variance.com/integrations) to add your PostHog integration then enter the values below. For more information, visit our [Docs](https://www.variance.com/docs/posthog)."
     },
     {
       "key": "webhookUrl",

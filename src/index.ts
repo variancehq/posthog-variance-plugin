@@ -2,43 +2,25 @@ import type { Meta, PluginEvent } from '@posthog/plugin-scaffold'
 import get from 'lodash.get'
 import set from 'lodash.set'
 
+enum SupportedEvent {
+  alias = `$create_alias`,
+  identify = `$identify`,
+  page = `$pageview`,
+}
+
 export interface VarianceConfig {
   authHeader: string
   webhookUrl: string
 }
 
+interface ValidEvent extends PluginEvent {
+  timestamp: string
+  uuid: string
+}
+
+type VarianceType = 'alias' | 'group' | 'identify' | 'page' | 'track'
+
 type Mapping = Record<string, string[] | string>
-
-const alias: Mapping = {
-  previousId: `properties.distinct_id`,
-  userId: `properties.alias`,
-}
-
-const page: Mapping = {
-  'name': `properties.name`,
-  'properties.category': `properties.category`,
-  'properties.host': `properties.$host`,
-  'properties.initial_referrer': `properties.$initial_referrer`,
-  'properties.initial_referring_domain': `properties.$initial_referring_domain`,
-  'properties.path': `properties.$pathname`,
-  'properties.referrer': `properties.$referrer`,
-  'properties.referring_domain': `properties.$referring_domain`,
-  'properties.url': `properties.$current_url`,
-}
-
-const identify: Mapping = {
-  'context.traits': `$set`,
-  'traits': `$set`,
-}
-
-const group: Mapping = {
-  groupId: `groupId`,
-  traits: `traits`,
-}
-
-const track: Mapping = {
-  event: `event`,
-}
 
 const generic: Mapping = {
   'anonymousId': [
@@ -46,81 +28,130 @@ const generic: Mapping = {
     `properties.$device_id`,
     `properties.distinct_id`,
   ],
-  'context.active_feature_flags': `properties.$active_feature_flags`,
   'context.app.version': `properties.posthog_version`,
-  'context.browser': `properties.$browser`,
-  'context.browser_version': `properties.$browser_version`,
-  'context.has_slack_webhook': `properties.has_slack_webhook`,
   'context.ip': `ip`,
-  'context.library.name': `properties.$lib`,
-  'context.library.version': `properties.$lib_version`,
   'context.os.name': `properties.$os`,
   'context.page.host': `properties.$host`,
-  'context.page.initial_referrer': `properties.$initial_referrer`,
-  'context.page.initial_referring_domain': `properties.$initial_referring_domain`,
   'context.page.path': `properties.$pathname`,
   'context.page.referrer': `properties.$referrer`,
-  'context.page.referring_domain': `properties.$referring_domain`,
   'context.page.url': `properties.$current_url`,
-  'context.posthog_version': `properties.posthog_version`,
   'context.screen.height': `properties.$screen_height`,
   'context.screen.width': `properties.$screen_width`,
-  'context.token': `properties.token`,
-  'messageId': `$insert_id`,
-  'originalTimestamp': `sent_at`,
+  'sentAt': `sent_at`,
   'userId': [`$user_id`, `distinct_id`],
 }
 
-const autoCapture: Mapping = {
-  'event': `properties.$event_type`,
-  'properties.elements': `properties.$elements`,
-}
-
-const eventToMapping = {
-  $autocapture: { mapping: autoCapture, type: `track` },
-  $create_alias: { mapping: alias, type: `alias` },
-  $group: { mapping: group, type: `group` },
-  $identify: { mapping: identify, type: `identify` },
-  $page: { mapping: page, type: `page` },
-  $pageview: { mapping: page, type: `page` },
-  default: { mapping: track, type: `track` },
+const mappings: Record<SupportedEvent, Mapping> = {
+  [SupportedEvent.alias]: {
+    previousId: `properties.distinct_id`,
+    userId: `properties.alias`,
+  },
+  [SupportedEvent.identify]: {},
+  [SupportedEvent.page]: {
+    'category': `properties.category`,
+    'name': `properties.name`,
+    'properties.host': `properties.$host`,
+    'properties.path': `properties.$pathname`,
+    'properties.referrer': `properties.$referrer`,
+    'properties.url': `properties.$current_url`,
+  },
 }
 
 export async function onEvent(
   event: PluginEvent,
   { config }: Meta<{ config: VarianceConfig }>
 ) {
-  const variancePayload = {
+  if (!isValidEvent(event)) return
+
+  if (event.event.startsWith(`$`) && !isSupportedEvent(event.event)) {
+    console.debug(`Unsupported event: ${event.event}`)
+    return
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const output: Record<string, any> = {
     libary: {
       name: NAME,
       version: VERSION,
     },
-  }
-  constructPayload(variancePayload, event, generic)
-
-  const eventName = get(event, `event`)
-  const { type, mapping } =
-    eventName in eventToMapping
-      ? eventToMapping[eventName as keyof typeof eventToMapping]
-      : eventToMapping.default
-
-  set(variancePayload, `type`, type)
-  constructPayload(variancePayload, event, mapping)
-
-  const properties = event.properties
-  if (properties) {
-    Object.keys(properties).forEach((propKey) => {
-      if (
-        propKey.slice(0, 1) !== `$` &&
-        properties[propKey] !== undefined &&
-        properties[propKey] !== null
-      ) {
-        set(variancePayload, `properties.${propKey}`, properties[propKey])
-      }
-    })
+    messageId: event.uuid,
+    timestamp: event.timestamp,
   }
 
-  return send(variancePayload, config)
+  constructPayload(output, event, generic)
+
+  const url = event.properties?.$current_url
+  let search: string | undefined
+  if (typeof url === `string`) {
+    search = new URL(url).search
+    set(output, `context.page.search`, search)
+  }
+
+  if (isSupportedEvent(event.event)) {
+    output.type = getVarianceType(event.event)
+    constructPayload(output, event, mappings[event.event])
+    switch (event.event) {
+      case SupportedEvent.alias:
+        break
+      case SupportedEvent.identify:
+        foreachProperties(event.properties?.$set, (key, value) =>
+          set(output, `traits.${key}`, value)
+        )
+        break
+      case SupportedEvent.page:
+        if (search) set(output, `properties.search`, search)
+        break
+    }
+  } else {
+    output.name = event.event
+    foreachProperties(event.properties, (key, value) =>
+      set(output, `properties.${key}`, value)
+    )
+  }
+
+  return send(output, config)
+}
+
+function foreachProperties(
+  properties: unknown,
+  cb: (key: string, value: unknown) => void
+) {
+  if (!properties || typeof properties !== `object`) return
+  Object.keys(properties).forEach((key) => {
+    const value = (properties as Record<string, undefined>)[key]
+    if (key.slice(0, 1) !== `$` && isDefined(value)) cb(key, value)
+  })
+}
+
+function isValidEvent(event: PluginEvent): event is ValidEvent {
+  if (!event.uuid) {
+    console.error(`Event missing uuid`)
+    return false
+  }
+  if (!event.timestamp) {
+    console.error(`Event missing timestamp`)
+    return false
+  }
+  return true
+}
+
+function isSupportedEvent(event: string): event is SupportedEvent {
+  return Object.values(SupportedEvent).some((e) => e === event)
+}
+
+function getVarianceType(event: SupportedEvent): VarianceType {
+  switch (event) {
+    case SupportedEvent.alias:
+      return `alias`
+    case SupportedEvent.identify:
+      return `identify`
+    case SupportedEvent.page:
+      return `page`
+  }
+}
+
+function isDefined(value: unknown) {
+  return value !== undefined && value !== null
 }
 
 function constructPayload(
@@ -141,14 +172,14 @@ function constructPayload(
     } else {
       pHKeyVal = get(inPayload, pHKeyPath)
     }
-    if (pHKeyVal !== undefined && pHKeyVal !== null) {
+    if (isDefined(pHKeyVal)) {
       set(outPayload, varianceKeyPath, pHKeyVal)
     }
   })
 }
 
 async function send(payload: Record<string, unknown>, config: VarianceConfig) {
-  await fetch(config.webhookUrl, {
+  const resp = await fetch(config.webhookUrl, {
     body: JSON.stringify(payload),
     headers: {
       'Authorization': config.authHeader,
@@ -156,4 +187,5 @@ async function send(payload: Record<string, unknown>, config: VarianceConfig) {
     },
     method: `POST`,
   })
+  if (!resp.ok) console.error(await resp.text())
 }

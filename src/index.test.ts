@@ -1,116 +1,96 @@
-import {
-  createEvent,
-  createIdentify,
-  createPageview,
-  getMeta,
-  resetMeta,
-} from '@posthog/plugin-scaffold/test/utils'
+import type { PluginEvent } from '@posthog/plugin-scaffold'
+import { getMeta, resetMeta } from '@posthog/plugin-scaffold/test/utils'
 import fetchMock, { enableFetchMocks } from 'jest-fetch-mock'
 
 import type { VarianceConfig } from '.'
+import autocapture from './fixtures/autocapture.json'
+import alias from './fixtures/create_alias.json'
+import custom from './fixtures/custom.json'
+import feature_flag_called from './fixtures/feature_flag_called.json'
+import groupidentify from './fixtures/groupidentify.json'
+import identify from './fixtures/identify.json'
+import pageleave from './fixtures/pageleave.json'
+import pageview from './fixtures/pageview.json'
 import { onEvent } from './index'
 
-describe(`onEvent`, () => {
+const config: VarianceConfig = {
+  authHeader: `Basic ...`,
+  webhookUrl: `https://variance.variance.dev`,
+}
+resetMeta({ config })
+
+function buildEvent(json: Record<string, unknown>): PluginEvent {
+  return {
+    ...json,
+    timestamp: `2020-11-26T12:58:58.453Z`,
+    uuid: `0`,
+  } as PluginEvent
+}
+
+describe(`supported`, () => {
   enableFetchMocks()
-
-  const config: VarianceConfig = {
-    authHeader: `Basic ...`,
-    webhookUrl: `https://variance.variance.dev`,
-  }
-  resetMeta({ config })
-
   afterEach(() => {
     fetchMock.resetMocks()
   })
 
-  it(`should support $autocapture`, async () => {
-    await onEvent(
-      createEvent({
-        event: `$autocapture`,
-        properties: { amount: `20`, currency: `USD` },
-      }),
-      getMeta()
-    )
-    expect(fetchMock.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "https://variance.variance.dev",
-        Object {
-          "body": "{\\"libary\\":{\\"name\\":\\"posthog-variance-plugin\\",\\"version\\":\\"0.0.0\\"},\\"context\\":{\\"ip\\":\\"127.128.129.130\\"},\\"originalTimestamp\\":\\"2020-11-26T12:58:58.453Z\\",\\"userId\\":\\"007\\",\\"type\\":\\"track\\",\\"properties\\":{\\"amount\\":\\"20\\",\\"currency\\":\\"USD\\"}}",
-          "headers": Object {
-            "Authorization": "Basic ...",
-            "Content-Type": "application/json",
-          },
-          "method": "POST",
-        },
-      ]
-    `)
+  async function assertFetch(json: Record<string, unknown>) {
+    await onEvent(buildEvent(json), getMeta())
+    expect(fetchMock.mock.calls[0][0]).toBe(config.webhookUrl)
+    const opts = fetchMock.mock.calls[0][1]
+    expect(opts?.headers).toEqual({
+      'Authorization': config.authHeader,
+      'Content-Type': `application/json`,
+    })
+    if (typeof opts?.body !== `string`) throw new Error(`Body should be string`)
+    const body = JSON.parse(opts.body)
+    expect(body.messageId).toBe(`0`)
+    expect(body).toMatchSnapshot()
+  }
+
+  it(`$create_alias`, async () => {
+    await assertFetch(alias)
   })
 
-  it(`should support $create_alias`, async () => {
-    await onEvent(createEvent({ event: `$create_alias` }), getMeta())
-    expect(fetchMock.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "https://variance.variance.dev",
-        Object {
-          "body": "{\\"libary\\":{\\"name\\":\\"posthog-variance-plugin\\",\\"version\\":\\"0.0.0\\"},\\"context\\":{\\"ip\\":\\"127.128.129.130\\"},\\"originalTimestamp\\":\\"2020-11-26T12:58:58.453Z\\",\\"userId\\":\\"007\\",\\"type\\":\\"alias\\"}",
-          "headers": Object {
-            "Authorization": "Basic ...",
-            "Content-Type": "application/json",
-          },
-          "method": "POST",
-        },
-      ]
-    `)
+  it(`$identify`, async () => {
+    await assertFetch(identify)
   })
 
-  it(`should support $group`, async () => {
-    await onEvent(createEvent({ event: `$group` }), getMeta())
-    expect(fetchMock.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "https://variance.variance.dev",
-        Object {
-          "body": "{\\"libary\\":{\\"name\\":\\"posthog-variance-plugin\\",\\"version\\":\\"0.0.0\\"},\\"context\\":{\\"ip\\":\\"127.128.129.130\\"},\\"originalTimestamp\\":\\"2020-11-26T12:58:58.453Z\\",\\"userId\\":\\"007\\",\\"type\\":\\"group\\"}",
-          "headers": Object {
-            "Authorization": "Basic ...",
-            "Content-Type": "application/json",
-          },
-          "method": "POST",
-        },
-      ]
-    `)
+  it(`$pageview`, async () => {
+    await assertFetch(pageview)
   })
 
-  it(`should support $identify`, async () => {
-    await onEvent(createIdentify(), getMeta())
-    expect(fetchMock.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "https://variance.variance.dev",
-        Object {
-          "body": "{\\"libary\\":{\\"name\\":\\"posthog-variance-plugin\\",\\"version\\":\\"0.0.0\\"},\\"context\\":{\\"ip\\":\\"127.128.129.130\\",\\"traits\\":{\\"$os\\":\\"Mac OS X\\",\\"email\\":\\"test@posthog.com\\",\\"$browser\\":\\"Chrome\\",\\"$browser_version\\":86,\\"$initial_referrer\\":\\"$direct\\",\\"$initial_referring_domain\\":\\"$direct\\"}},\\"originalTimestamp\\":\\"2020-11-26T12:58:58.453Z\\",\\"userId\\":\\"007\\",\\"type\\":\\"identify\\",\\"traits\\":{\\"$os\\":\\"Mac OS X\\",\\"email\\":\\"test@posthog.com\\",\\"$browser\\":\\"Chrome\\",\\"$browser_version\\":86,\\"$initial_referrer\\":\\"$direct\\",\\"$initial_referring_domain\\":\\"$direct\\"}}",
-          "headers": Object {
-            "Authorization": "Basic ...",
-            "Content-Type": "application/json",
-          },
-          "method": "POST",
-        },
-      ]
-    `)
+  it(`custom event`, async () => {
+    await assertFetch(custom)
+  })
+})
+
+describe(`ignore`, () => {
+  const mockDebug = jest.spyOn(console, `debug`).mockImplementation(() => {
+    /**/
   })
 
-  it(`should support $pageview`, async () => {
-    await onEvent(createPageview(), getMeta())
-    expect(fetchMock.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "https://variance.variance.dev",
-        Object {
-          "body": "{\\"libary\\":{\\"name\\":\\"posthog-variance-plugin\\",\\"version\\":\\"0.0.0\\"},\\"anonymousId\\":\\"17554768afe5cb-0fc915d2a583cf-166f6152-1ea000-175543686ffdc5\\",\\"context\\":{\\"active_feature_flags\\":[\\"navigation-1775\\",\\"session-recording-player\\"],\\"app\\":{\\"version\\":\\"1.17.0\\"},\\"browser\\":\\"Chrome\\",\\"browser_version\\":86,\\"has_slack_webhook\\":false,\\"ip\\":\\"127.128.129.130\\",\\"library\\":{\\"name\\":\\"web\\",\\"version\\":\\"1.7.0-beta.1\\"},\\"os\\":{\\"name\\":\\"Mac OS X\\"},\\"page\\":{\\"host\\":\\"localhost:8000\\",\\"initial_referrer\\":\\"$direct\\",\\"initial_referring_domain\\":\\"$direct\\",\\"path\\":\\"/instance/status\\",\\"url\\":\\"http://localhost:8000/instance/status\\"},\\"posthog_version\\":\\"1.17.0\\",\\"screen\\":{\\"height\\":1120,\\"width\\":1790},\\"token\\":\\"mre13a_SMBv9EwHAtdtTyutyy6AfO00OTPwaalaHPGgKLS\\"},\\"originalTimestamp\\":\\"2020-11-26T12:58:58.453Z\\",\\"userId\\":\\"007\\",\\"type\\":\\"page\\",\\"properties\\":{\\"host\\":\\"localhost:8000\\",\\"initial_referrer\\":\\"$direct\\",\\"initial_referring_domain\\":\\"$direct\\",\\"path\\":\\"/instance/status\\",\\"url\\":\\"http://localhost:8000/instance/status\\",\\"token\\":\\"mre13a_SMBv9EwHAtdtTyutyy6AfO00OTPwaalaHPGgKLS\\",\\"distinct_id\\":\\"scbbAqF7uyrMmamV4QBzcA1rrm9wHNISdFweZz-mQ0\\",\\"posthog_version\\":\\"1.17.0\\",\\"has_slack_webhook\\":false}}",
-          "headers": Object {
-            "Authorization": "Basic ...",
-            "Content-Type": "application/json",
-          },
-          "method": "POST",
-        },
-      ]
-    `)
+  afterEach(() => {
+    mockDebug.mockReset()
+  })
+
+  async function assertIgnore(json: Record<string, unknown>) {
+    await onEvent(buildEvent(json), getMeta())
+    expect(mockDebug).toBeCalledWith(`Unsupported event: ${String(json.event)}`)
+  }
+
+  it(`$autocapture`, async () => {
+    await assertIgnore(autocapture)
+  })
+
+  it(`$groupidentify`, async () => {
+    await assertIgnore(groupidentify)
+  })
+
+  it(`$feature_flag_called`, async () => {
+    await assertIgnore(feature_flag_called)
+  })
+
+  it(`$pageleave`, async () => {
+    await assertIgnore(pageleave)
   })
 })
