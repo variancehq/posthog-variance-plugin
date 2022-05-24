@@ -1923,12 +1923,20 @@ function set(object, path, value) {
 
 var lodash_set = set;
 
-var SupportedEvent;
-(function (SupportedEvent) {
-    SupportedEvent["alias"] = "$create_alias";
-    SupportedEvent["identify"] = "$identify";
-    SupportedEvent["page"] = "$pageview";
-})(SupportedEvent || (SupportedEvent = {}));
+var PostHogEventType;
+(function (PostHogEventType) {
+    PostHogEventType["alias"] = "$create_alias";
+    PostHogEventType["identify"] = "$identify";
+    PostHogEventType["page"] = "$pageview";
+})(PostHogEventType || (PostHogEventType = {}));
+var VarianceEventType;
+(function (VarianceEventType) {
+    VarianceEventType["alias"] = "alias";
+    VarianceEventType["group"] = "group";
+    VarianceEventType["identify"] = "identify";
+    VarianceEventType["page"] = "page";
+    VarianceEventType["track"] = "track";
+})(VarianceEventType || (VarianceEventType = {}));
 const generic = {
     'anonymousId': [
         `properties.$anon_distinct_id`,
@@ -1948,12 +1956,12 @@ const generic = {
     'userId': [`$user_id`, `distinct_id`],
 };
 const mappings = {
-    [SupportedEvent.alias]: {
+    [PostHogEventType.alias]: {
         previousId: `properties.distinct_id`,
         userId: `properties.alias`,
     },
-    [SupportedEvent.identify]: {},
-    [SupportedEvent.page]: {
+    [PostHogEventType.identify]: {},
+    [PostHogEventType.page]: {
         'category': `properties.category`,
         'name': `properties.name`,
         'properties.host': `properties.$host`,
@@ -1990,19 +1998,20 @@ async function onEvent(event, { config }) {
         output.type = getVarianceType(event.event);
         constructPayload(output, event, mappings[event.event]);
         switch (event.event) {
-            case SupportedEvent.alias:
+            case PostHogEventType.alias:
                 break;
-            case SupportedEvent.identify:
+            case PostHogEventType.identify:
                 foreachProperties((_b = event.properties) === null || _b === void 0 ? void 0 : _b.$set, (key, value) => lodash_set(output, `traits.${key}`, value));
                 break;
-            case SupportedEvent.page:
+            case PostHogEventType.page:
                 if (search)
                     lodash_set(output, `properties.search`, search);
                 break;
         }
     }
     else {
-        output.name = event.event;
+        output.event = event.event;
+        output.type = VarianceEventType.track;
         foreachProperties(event.properties, (key, value) => lodash_set(output, `properties.${key}`, value));
     }
     return send(output, config);
@@ -2028,16 +2037,16 @@ function isValidEvent(event) {
     return true;
 }
 function isSupportedEvent(event) {
-    return Object.values(SupportedEvent).some((e) => e === event);
+    return Object.values(PostHogEventType).some((e) => e === event);
 }
 function getVarianceType(event) {
     switch (event) {
-        case SupportedEvent.alias:
-            return `alias`;
-        case SupportedEvent.identify:
-            return `identify`;
-        case SupportedEvent.page:
-            return `page`;
+        case PostHogEventType.alias:
+            return VarianceEventType.alias;
+        case PostHogEventType.identify:
+            return VarianceEventType.identify;
+        case PostHogEventType.page:
+            return VarianceEventType.page;
     }
 }
 function isDefined(value) {
@@ -2076,4 +2085,4 @@ async function send(payload, config) {
         console.error(await resp.text());
 }
 
-export { onEvent };
+export { VarianceEventType, onEvent };
