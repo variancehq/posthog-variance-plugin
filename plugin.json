@@ -1,6 +1,6 @@
 {
   "name": "Variance",
-  "url": "https://github.com/variancehq/posthog",
+  "url": "https://www.variance.com/docs/posthog",
   "description": "Send event data to Variance",
   "main": "dist/index.js",
   "posthogVersion": ">= 1.25.0",
