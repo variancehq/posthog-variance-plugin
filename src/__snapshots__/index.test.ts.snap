@@ -108,12 +108,12 @@ Object {
       "width": 1512,
     },
   },
+  "event": "team has ingested events",
   "libary": Object {
     "name": "posthog-variance-plugin",
     "version": "0.0.0",
   },
   "messageId": "0",
-  "name": "team has ingested events",
   "properties": Object {
     "distinct_id": "YiZpN3z6sbgGuZ93bWpAqsfyaQDj1la4us2p3mT41uj",
     "is_demo_project": false,

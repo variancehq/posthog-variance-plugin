@@ -109,7 +109,7 @@ export async function onEvent(
         break
     }
   } else {
-    output.name = event.event
+    output.event = event.event
     output.type = VarianceEventType.track
     foreachProperties(event.properties, (key, value) =>
       set(output, `properties.${key}`, value)
