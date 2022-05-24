@@ -2,10 +2,18 @@ import type { Meta, PluginEvent } from '@posthog/plugin-scaffold'
 import get from 'lodash.get'
 import set from 'lodash.set'
 
-enum SupportedEvent {
+enum PostHogEventType {
   alias = `$create_alias`,
   identify = `$identify`,
   page = `$pageview`,
+}
+
+export enum VarianceEventType {
+  'alias' = `alias`,
+  'group' = `group`,
+  'identify' = `identify`,
+  'page' = `page`,
+  'track' = `track`,
 }
 
 export interface VarianceConfig {
@@ -17,8 +25,6 @@ interface ValidEvent extends PluginEvent {
   timestamp: string
   uuid: string
 }
-
-type VarianceType = 'alias' | 'group' | 'identify' | 'page' | 'track'
 
 type Mapping = Record<string, string[] | string>
 
@@ -41,13 +47,13 @@ const generic: Mapping = {
   'userId': [`$user_id`, `distinct_id`],
 }
 
-const mappings: Record<SupportedEvent, Mapping> = {
-  [SupportedEvent.alias]: {
+const mappings: Record<PostHogEventType, Mapping> = {
+  [PostHogEventType.alias]: {
     previousId: `properties.distinct_id`,
     userId: `properties.alias`,
   },
-  [SupportedEvent.identify]: {},
-  [SupportedEvent.page]: {
+  [PostHogEventType.identify]: {},
+  [PostHogEventType.page]: {
     'category': `properties.category`,
     'name': `properties.name`,
     'properties.host': `properties.$host`,
@@ -91,19 +97,20 @@ export async function onEvent(
     output.type = getVarianceType(event.event)
     constructPayload(output, event, mappings[event.event])
     switch (event.event) {
-      case SupportedEvent.alias:
+      case PostHogEventType.alias:
         break
-      case SupportedEvent.identify:
+      case PostHogEventType.identify:
         foreachProperties(event.properties?.$set, (key, value) =>
           set(output, `traits.${key}`, value)
         )
         break
-      case SupportedEvent.page:
+      case PostHogEventType.page:
         if (search) set(output, `properties.search`, search)
         break
     }
   } else {
     output.name = event.event
+    output.type = VarianceEventType.track
     foreachProperties(event.properties, (key, value) =>
       set(output, `properties.${key}`, value)
     )
@@ -135,18 +142,18 @@ function isValidEvent(event: PluginEvent): event is ValidEvent {
   return true
 }
 
-function isSupportedEvent(event: string): event is SupportedEvent {
-  return Object.values(SupportedEvent).some((e) => e === event)
+function isSupportedEvent(event: string): event is PostHogEventType {
+  return Object.values(PostHogEventType).some((e) => e === event)
 }
 
-function getVarianceType(event: SupportedEvent): VarianceType {
+function getVarianceType(event: PostHogEventType): VarianceEventType {
   switch (event) {
-    case SupportedEvent.alias:
-      return `alias`
-    case SupportedEvent.identify:
-      return `identify`
-    case SupportedEvent.page:
-      return `page`
+    case PostHogEventType.alias:
+      return VarianceEventType.alias
+    case PostHogEventType.identify:
+      return VarianceEventType.identify
+    case PostHogEventType.page:
+      return VarianceEventType.page
   }
 }
 

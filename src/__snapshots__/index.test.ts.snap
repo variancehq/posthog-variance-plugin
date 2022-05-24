@@ -120,6 +120,7 @@ Object {
     "token": "phc_r06aTsEyFENJMKoqoJCoPxCtRCQGZFw1njECfKiup7K",
   },
   "timestamp": "2020-11-26T12:58:58.453Z",
+  "type": "track",
   "userId": "YiZpN3z6sbgGuZ93bWpAqsfyaQDj1la4us2p3mT41uj",
 }
 `;

@@ -3,6 +3,7 @@ import { getMeta, resetMeta } from '@posthog/plugin-scaffold/test/utils'
 import fetchMock, { enableFetchMocks } from 'jest-fetch-mock'
 
 import type { VarianceConfig } from '.'
+import { VarianceEventType } from '.'
 import autocapture from './fixtures/autocapture.json'
 import alias from './fixtures/create_alias.json'
 import custom from './fixtures/custom.json'
@@ -33,7 +34,10 @@ describe(`supported`, () => {
     fetchMock.resetMocks()
   })
 
-  async function assertFetch(json: Record<string, unknown>) {
+  async function assertFetch(
+    json: Record<string, unknown>,
+    eventType: VarianceEventType
+  ) {
     await onEvent(buildEvent(json), getMeta())
     expect(fetchMock.mock.calls[0][0]).toBe(config.webhookUrl)
     const opts = fetchMock.mock.calls[0][1]
@@ -43,24 +47,25 @@ describe(`supported`, () => {
     })
     if (typeof opts?.body !== `string`) throw new Error(`Body should be string`)
     const body = JSON.parse(opts.body)
+    expect(body.type).toBe(eventType)
     expect(body.messageId).toBe(`0`)
     expect(body).toMatchSnapshot()
   }
 
   it(`$create_alias`, async () => {
-    await assertFetch(alias)
+    await assertFetch(alias, VarianceEventType.alias)
   })
 
   it(`$identify`, async () => {
-    await assertFetch(identify)
+    await assertFetch(identify, VarianceEventType.identify)
   })
 
   it(`$pageview`, async () => {
-    await assertFetch(pageview)
+    await assertFetch(pageview, VarianceEventType.page)
   })
 
   it(`custom event`, async () => {
-    await assertFetch(custom)
+    await assertFetch(custom, VarianceEventType.track)
   })
 })
 
