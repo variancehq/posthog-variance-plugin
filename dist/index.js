@@ -1982,7 +1982,7 @@ async function onEvent(event, { config }) {
     const output = {
         libary: {
             name: "posthog-variance-plugin",
-            version: undefined,
+            version: "0.0.0",
         },
         messageId: event.uuid,
         timestamp: event.timestamp,
