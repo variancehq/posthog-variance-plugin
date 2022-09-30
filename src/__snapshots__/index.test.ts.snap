@@ -34,6 +34,46 @@ exports[`supported $create_alias 1`] = `
 }
 `;
 
+exports[`supported $groupidentify 1`] = `
+{
+  "anonymousId": "180d9a2c070861-0c82a7dd77400b-34736704-16a7f0-180d9a2c0711cbb",
+  "context": {
+    "app": {
+      "version": "1.35.0",
+    },
+    "os": {
+      "name": "Mac OS X",
+    },
+    "page": {
+      "host": "localhost:8000",
+      "path": "/project/apps",
+      "referrer": "http://localhost:8000/authorize_and_redirect/?redirect=http%3A%2F%2Flocalhost%3A8000%2Fproject%2Fsettings",
+      "search": "",
+      "url": "http://localhost:8000/project/apps",
+    },
+    "screen": {
+      "height": 982,
+      "width": 1512,
+    },
+  },
+  "groupId": "http://localhost:8000",
+  "libary": {
+    "name": "posthog-variance-plugin",
+    "version": "0.0.0",
+  },
+  "messageId": "0",
+  "timestamp": "2020-11-26T12:58:58.453Z",
+  "traits": {
+    "instance": "http://localhost:8000",
+    "organization": "0180d9a2-b90a-0000-34d4-e261a7db0061",
+    "posthog_group_type": "instance",
+    "project": "0180d9a2-bdc7-0000-33c9-e4c7337dc44f",
+  },
+  "type": "group",
+  "userId": "YiZpN3z6sbgGuZ93bWpAqsfyaQDj1la4us2p3mT41uj",
+}
+`;
+
 exports[`supported $identify 1`] = `
 {
   "libary": {
