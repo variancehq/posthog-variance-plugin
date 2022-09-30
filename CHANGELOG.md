@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/variancehq/posthog-variance-plugin/compare/v0.0.0...v1.0.0) (2022-09-30)
+
+
+### Features
+
+* group analytics support ([2c83725](https://github.com/variancehq/posthog-variance-plugin/commit/2c83725ef837617646ac1ce0b96965cd26123645))
+
 ## 0.0.0 (2022-09-30)
 
 
