@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: '18'
       - run: yarn commitlint --from origin/main --to ${GITHUB_SHA} --verbose
       - run: yarn style
       - run: yarn lint
