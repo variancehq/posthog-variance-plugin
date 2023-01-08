@@ -114,7 +114,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["convert-source-map", "npm:1.8.0"],\
             ["debug", "virtual:fd8de37609258cc0a542fd94a84d3a92a7a50fe97add0d0ad2eb2de7df7a01a41d03004536a361279c31772f9825e9f1c1db0cf143d0ea8269bb824c9db84c63#npm:4.3.4"],\
             ["gensync", "npm:1.0.0-beta.2"],\
-            ["json5", "npm:2.2.1"],\
+            ["json5", "npm:2.2.3"],\
             ["semver", "npm:6.3.0"]\
           ],\
           "linkType": "HARD"\
@@ -5666,10 +5666,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["json5", [\
-        ["npm:2.2.1", {\
-          "packageLocation": "./.yarn/cache/json5-npm-2.2.1-44675c859c-74b8a23b10.zip/node_modules/json5/",\
+        ["npm:2.2.3", {\
+          "packageLocation": "./.yarn/cache/json5-npm-2.2.3-9962c55073-2a7436a933.zip/node_modules/json5/",\
           "packageDependencies": [\
-            ["json5", "npm:2.2.1"]\
+            ["json5", "npm:2.2.3"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -7622,7 +7622,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["fast-json-stable-stringify", "npm:2.1.0"],\
             ["jest", "virtual:7e7152d4c3dbaada56a87592cbea2c71eb8259becd5f14f58937137261bfe8e2f5d5623ed1f6a8383b2a45b7aaaea86758aa7da8ad3c6b17d29d8cc750c5f0c2#npm:29.1.2"],\
             ["jest-util", "npm:29.1.2"],\
-            ["json5", "npm:2.2.1"],\
+            ["json5", "npm:2.2.3"],\
             ["lodash.memoize", "npm:4.1.2"],\
             ["make-error", "npm:1.3.6"],\
             ["semver", "npm:7.3.7"],\
